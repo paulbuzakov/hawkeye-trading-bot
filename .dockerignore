@@ -1,0 +1,25 @@
+# Build artifacts — always rebuilt inside the image
+**/bin/
+**/obj/
+**/out/
+
+# VCS / IDE / local
+.git/
+.gitignore
+.github/
+.vs/
+.vscode/
+.idea/
+.claude/
+
+# Tests are not needed to build the runtime images
+tests/
+
+# Docs & misc
+docs/
+*.md
+LICENSE
+
+# Local env / secrets
+**/.env
+**/*.user

@@ -1,10 +1,16 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/marketdata/">
-    <Project Path="src/marketdata/HTB.MarketData.Data/HTB.MarketData.Data.csproj" />
     <Project Path="src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.csproj" />
+    <Project Path="src/marketdata/HTB.MarketData.Migrations/HTB.MarketData.Migrations.csproj" />
   </Folder>
   <Folder Name="/src/shared/">
     <Project Path="src/shared/HTB.Shared/HTB.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/marketdata/">
+    <Project Path="tests/marketdata/HTB.MarketData.Migrations.Tests/HTB.MarketData.Migrations.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/shared/">
+    <Project Path="tests/shared/HTB.Shared.Tests/HTB.Shared.Tests.csproj" />
   </Folder>
 </Solution>
