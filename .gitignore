@@ -56,3 +56,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Local TimescaleDB data (bind mount)
+deploy/marketdata/db/pgdata/
