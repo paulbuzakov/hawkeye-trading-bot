@@ -1,4 +1,6 @@
-namespace HTB.Shared.MarketData;
+using HTB.Shared.MarketData.Domain;
+
+namespace HTB.Shared.MarketData.Abstractions;
 
 /// <summary>
 /// Persistence gateway for OHLCV candles. Writes are idempotent on the candle's

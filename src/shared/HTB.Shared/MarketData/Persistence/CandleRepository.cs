@@ -1,4 +1,7 @@
-namespace HTB.Shared.MarketData;
+using HTB.Shared.MarketData.Abstractions;
+using HTB.Shared.MarketData.Domain;
+
+namespace HTB.Shared.MarketData.Persistence;
 
 /// <summary>
 /// EF Core / PostgreSQL implementation of <see cref="ICandleRepository"/>. Upserts use
@@ -21,7 +24,7 @@ public sealed class CandleRepository(MarketDataDbContext db) : ICandleRepository
         {
             affected += await _db.Database.ExecuteSqlInterpolatedAsync(
                 $"""
-                INSERT INTO candles
+                INSERT INTO marketdata.candles
                     (exchange_id, symbol_id, interval, open_time,
                      open, high, low, close, volume, quote_volume, trade_count, is_closed)
                 VALUES

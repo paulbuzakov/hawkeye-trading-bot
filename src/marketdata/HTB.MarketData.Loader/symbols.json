@@ -1,0 +1,23 @@
+[
+  {
+    "ticket": "BTCUSDT",
+    "timeframes": ["M1", "M5", "M15", "H1", "H4", "D1"],
+    "date-range": {
+      "from": "2020-01-01"
+    }
+  },
+  {
+    "ticket": "ETHUSDT",
+    "timeframes": ["M1", "M5", "M15", "H1", "H4", "D1"],
+    "date-range": {
+      "from": "2020-01-01"
+    }
+  },
+  {
+    "ticket": "BNBUSDT",
+    "timeframes": ["M1", "M5", "M15", "H1", "H4", "D1"],
+    "date-range": {
+      "from": "2020-01-01"
+    }
+  }
+]

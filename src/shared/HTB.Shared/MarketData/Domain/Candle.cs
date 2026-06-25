@@ -1,4 +1,4 @@
-namespace HTB.Shared.MarketData;
+namespace HTB.Shared.MarketData.Domain;
 
 /// <summary>
 /// An OHLCV candle (kline) for a symbol/interval. The natural key is

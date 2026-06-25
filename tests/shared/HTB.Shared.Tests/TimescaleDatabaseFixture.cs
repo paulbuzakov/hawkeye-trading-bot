@@ -1,4 +1,5 @@
-using HTB.Shared.MarketData;
+using HTB.Shared.MarketData.Domain;
+using HTB.Shared.MarketData.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 

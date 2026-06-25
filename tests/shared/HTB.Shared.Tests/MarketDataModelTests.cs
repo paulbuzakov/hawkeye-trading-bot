@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData;
+using HTB.Shared.MarketData.Domain;
 
 namespace HTB.Shared.Tests;
 
