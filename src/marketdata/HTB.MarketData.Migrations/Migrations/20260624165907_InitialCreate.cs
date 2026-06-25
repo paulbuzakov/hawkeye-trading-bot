@@ -10,8 +10,11 @@ namespace HTB.MarketData.Migrations.Migrations
         {
             migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS timescaledb;");
 
+            migrationBuilder.EnsureSchema(name: "marketdata");
+
             migrationBuilder.CreateTable(
                 name: "exchanges",
+                schema: "marketdata",
                 columns: table => new
                 {
                     id = table
@@ -31,6 +34,7 @@ namespace HTB.MarketData.Migrations.Migrations
 
             migrationBuilder.CreateTable(
                 name: "symbols",
+                schema: "marketdata",
                 columns: table => new
                 {
                     id = table
@@ -50,6 +54,7 @@ namespace HTB.MarketData.Migrations.Migrations
                     table.ForeignKey(
                         name: "FK_symbols_exchanges_exchange_id",
                         column: x => x.exchange_id,
+                        principalSchema: "marketdata",
                         principalTable: "exchanges",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict
@@ -59,6 +64,7 @@ namespace HTB.MarketData.Migrations.Migrations
 
             migrationBuilder.CreateTable(
                 name: "candles",
+                schema: "marketdata",
                 columns: table => new
                 {
                     exchange_id = table.Column<int>(type: "integer", nullable: false),
@@ -97,6 +103,7 @@ namespace HTB.MarketData.Migrations.Migrations
                     table.ForeignKey(
                         name: "FK_candles_symbols_symbol_id",
                         column: x => x.symbol_id,
+                        principalSchema: "marketdata",
                         principalTable: "symbols",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict
@@ -106,12 +113,14 @@ namespace HTB.MarketData.Migrations.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "ix_candles_symbol_interval_time",
+                schema: "marketdata",
                 table: "candles",
                 columns: new[] { "symbol_id", "interval", "open_time" }
             );
 
             migrationBuilder.CreateIndex(
                 name: "IX_exchanges_code",
+                schema: "marketdata",
                 table: "exchanges",
                 column: "code",
                 unique: true
@@ -119,6 +128,7 @@ namespace HTB.MarketData.Migrations.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_symbols_exchange_id_exchange_symbol",
+                schema: "marketdata",
                 table: "symbols",
                 columns: new[] { "exchange_id", "exchange_symbol" },
                 unique: true
@@ -128,18 +138,18 @@ namespace HTB.MarketData.Migrations.Migrations
             // open_time. The primary key already includes open_time, satisfying Timescale's
             // requirement that unique constraints cover the partitioning column.
             migrationBuilder.Sql(
-                "SELECT create_hypertable('candles', 'open_time', if_not_exists => TRUE);"
+                "SELECT create_hypertable('marketdata.candles', 'open_time', if_not_exists => TRUE);"
             );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "candles");
+            migrationBuilder.DropTable(name: "candles", schema: "marketdata");
 
-            migrationBuilder.DropTable(name: "symbols");
+            migrationBuilder.DropTable(name: "symbols", schema: "marketdata");
 
-            migrationBuilder.DropTable(name: "exchanges");
+            migrationBuilder.DropTable(name: "exchanges", schema: "marketdata");
         }
     }
 }

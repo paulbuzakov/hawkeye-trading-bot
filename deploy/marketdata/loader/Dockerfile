@@ -22,6 +22,13 @@ RUN dotnet publish src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.cs
 # ---- runtime ---------------------------------------------------------------
 FROM mcr.microsoft.com/dotnet/runtime:10.0 AS final
 WORKDIR /app
+
+# Npgsql loads libgssapi_krb5 for Kerberos/GSSAPI auth; the slim runtime image
+# omits it, so connecting to Postgres would crash without this package.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app ./
 
 # Run as the non-root user baked into the .NET runtime images.

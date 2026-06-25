@@ -1,4 +1,6 @@
-namespace HTB.Shared.MarketData;
+using HTB.Shared.MarketData.Domain;
+
+namespace HTB.Shared.MarketData.Persistence;
 
 /// <summary>
 /// EF Core context for the candle store (PostgreSQL + TimescaleDB). Maps the
@@ -16,9 +18,11 @@ public sealed class MarketDataDbContext(DbContextOptions<MarketDataDbContext> op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("marketdata");
+
         modelBuilder.Entity<Exchange>(entity =>
         {
-            entity.ToTable("exchanges");
+            entity.ToTable("exchanges", "marketdata");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Code).HasColumnName("code").IsRequired();
@@ -28,7 +32,7 @@ public sealed class MarketDataDbContext(DbContextOptions<MarketDataDbContext> op
 
         modelBuilder.Entity<Symbol>(entity =>
         {
-            entity.ToTable("symbols");
+            entity.ToTable("symbols", "marketdata");
             entity.HasKey(s => s.Id);
             entity.Property(s => s.Id).HasColumnName("id");
             entity.Property(s => s.ExchangeId).HasColumnName("exchange_id");
@@ -45,7 +49,7 @@ public sealed class MarketDataDbContext(DbContextOptions<MarketDataDbContext> op
 
         modelBuilder.Entity<Candle>(entity =>
         {
-            entity.ToTable("candles");
+            entity.ToTable("candles", "marketdata");
             entity.HasKey(c => new
             {
                 c.ExchangeId,

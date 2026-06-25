@@ -32,6 +32,13 @@ RUN dotnet ef migrations bundle \
 # ---- runtime ---------------------------------------------------------------
 FROM mcr.microsoft.com/dotnet/runtime:10.0 AS final
 WORKDIR /app
+
+# Npgsql loads libgssapi_krb5 for Kerberos/GSSAPI auth; the slim runtime image
+# omits it, so the bundle would crash at startup without this package.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/efbundle ./efbundle
 RUN chmod +x ./efbundle
 

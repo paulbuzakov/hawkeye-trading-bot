@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="HTB.Shared.MarketData" />
+    <Using Include="HTB.Shared.MarketData.Persistence" />
     <Using Include="Microsoft.EntityFrameworkCore" />
     <Using Include="Microsoft.EntityFrameworkCore.Design" />
     <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
