@@ -3,20 +3,12 @@ using HTB.Shared.MarketData.Domain;
 namespace HTB.Shared.MarketData.Abstractions;
 
 /// <summary>
-/// Persistence gateway for OHLCV candles. Writes are idempotent on the candle's
-/// natural key so backfill and live ingestion can safely overlap.
+/// Read-only query gateway for OHLCV candles. Lives in HTB.Shared so any consumer (backtests,
+/// analytics, the loader's resume logic) can read history. Writes are the loader's concern and
+/// live there.
 /// </summary>
 public interface ICandleRepository
 {
-    /// <summary>
-    /// Inserts or updates the given candles keyed on
-    /// (exchange_id, symbol_id, interval, open_time). Returns the number of rows written.
-    /// </summary>
-    Task<int> UpsertAsync(
-        IReadOnlyCollection<Candle> candles,
-        CancellationToken cancellationToken = default
-    );
-
     /// <summary>
     /// Returns candles for a symbol/interval with open time in the inclusive
     /// <paramref name="from"/>..<paramref name="to"/> range, ordered by open time ascending.

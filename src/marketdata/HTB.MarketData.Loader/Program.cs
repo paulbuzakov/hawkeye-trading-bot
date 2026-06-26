@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using HTB.MarketData.Loader.Binance;
 using HTB.MarketData.Loader.Configuration;
 using HTB.MarketData.Loader.Ingestion;
+using HTB.MarketData.Loader.Persistence;
 using HTB.Shared.MarketData.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,21 +17,24 @@ namespace HTB.MarketData.Loader;
 internal static class Program
 {
     private const string SymbolsFileEnvVar = "HTB_SYMBOLS_FILE";
-    private const string ConnectionStringEnvVar = "HTB_MARKETDATA_DB";
-    private const string DefaultSymbolsFile = "symbols.json";
+    private const string ConnectionStringEnvVar = "HTB_CONNECTION_STRING";
     private const string BinanceBaseAddress = "https://api.binance.com";
-
-    private const string DefaultConnectionString =
-        "Host=localhost;Port=5432;Database=hawkeye;Username=hawkeye;Password=hawkeye";
 
     private static async Task<int> Main(string[] args)
     {
         var symbolsFile =
             args.Length > 0
                 ? args[0]
-                : Environment.GetEnvironmentVariable(SymbolsFileEnvVar) ?? DefaultSymbolsFile;
+                : Environment.GetEnvironmentVariable(SymbolsFileEnvVar)
+                    ?? throw new InvalidOperationException(
+                        $"Either pass the symbols file path as the first argument, or set the {SymbolsFileEnvVar} environment variable."
+                    );
+
         var connectionString =
-            Environment.GetEnvironmentVariable(ConnectionStringEnvVar) ?? DefaultConnectionString;
+            Environment.GetEnvironmentVariable(ConnectionStringEnvVar)
+            ?? throw new InvalidOperationException(
+                $"Environment variable {ConnectionStringEnvVar} must be set to a valid PostgreSQL connection string."
+            );
 
         try
         {
@@ -39,15 +43,23 @@ internal static class Program
             using var httpClient = new HttpClient { BaseAddress = new Uri(BinanceBaseAddress) };
             var client = new BinanceMarketDataClient(httpClient);
 
-            var options = new DbContextOptionsBuilder<MarketDataDbContext>()
+            var readDbOptions = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
                 .UseNpgsql(connectionString)
                 .Options;
-            await using var db = new MarketDataDbContext(options);
+
+            await using var readDb = new MarketDataReadonlyDbContext(readDbOptions);
+
+            var writeDbOptions = new DbContextOptionsBuilder<MarketDataWriteDbContext>()
+                .UseNpgsql(connectionString)
+                .Options;
+
+            await using var writeDb = new MarketDataWriteDbContext(writeDbOptions);
 
             var loader = new MarketDataLoader(
                 client,
-                new InstrumentRepository(db),
-                new CandleRepository(db),
+                new InstrumentRepository(writeDb),
+                new CandleRepository(readDb),
+                new CandleWriter(writeDb),
                 TimeProvider.System,
                 Console.WriteLine
             );

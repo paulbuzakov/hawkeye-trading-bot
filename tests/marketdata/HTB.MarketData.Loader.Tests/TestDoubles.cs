@@ -2,6 +2,7 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using HTB.MarketData.Loader.Binance;
+using HTB.MarketData.Loader.Persistence;
 using HTB.Shared.MarketData.Abstractions;
 using HTB.Shared.MarketData.Domain;
 
@@ -140,8 +141,12 @@ internal sealed class FakeInstrumentRepository : IInstrumentRepository
     }
 }
 
-/// <summary>Captures every upserted candle and reports the row count back.</summary>
-internal sealed class FakeCandleRepository : ICandleRepository
+/// <summary>
+/// Captures every upserted candle and reports the row count back. Doubles as both the read
+/// gateway (<see cref="ICandleRepository"/>) and the write gateway (<see cref="ICandleWriter"/>)
+/// so a single instance backs the loader's resume reads and its writes.
+/// </summary>
+internal sealed class FakeCandleRepository : ICandleRepository, ICandleWriter
 {
     public List<Candle> Upserted { get; } = [];
 

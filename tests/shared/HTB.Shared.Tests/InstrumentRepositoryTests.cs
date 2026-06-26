@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Persistence;
+using HTB.MarketData.Loader.Persistence;
 
 namespace HTB.Shared.Tests;
 
@@ -10,7 +10,7 @@ public sealed class InstrumentRepositoryTests(TimescaleDatabaseFixture fixture)
     [Fact]
     public async Task GetOrCreateExchangeAsync_returns_the_seeded_exchange()
     {
-        await using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateWriteContext();
         var repository = new InstrumentRepository(context);
 
         var exchange = await repository.GetOrCreateExchangeAsync("binance", "Binance");
@@ -21,7 +21,7 @@ public sealed class InstrumentRepositoryTests(TimescaleDatabaseFixture fixture)
     [Fact]
     public async Task GetOrCreateExchangeAsync_inserts_a_new_exchange_once()
     {
-        await using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateWriteContext();
         var repository = new InstrumentRepository(context);
 
         var first = await repository.GetOrCreateExchangeAsync("kraken", "Kraken");
@@ -35,7 +35,7 @@ public sealed class InstrumentRepositoryTests(TimescaleDatabaseFixture fixture)
     [Fact]
     public async Task GetOrCreateExchangeAsync_blank_code_throws()
     {
-        await using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateWriteContext();
         var repository = new InstrumentRepository(context);
 
         await Assert.ThrowsAsync<ArgumentException>(() =>
@@ -46,7 +46,7 @@ public sealed class InstrumentRepositoryTests(TimescaleDatabaseFixture fixture)
     [Fact]
     public async Task GetOrCreateSymbolAsync_returns_the_seeded_symbol()
     {
-        await using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateWriteContext();
         var repository = new InstrumentRepository(context);
 
         var symbol = await repository.GetOrCreateSymbolAsync(
@@ -62,7 +62,7 @@ public sealed class InstrumentRepositoryTests(TimescaleDatabaseFixture fixture)
     [Fact]
     public async Task GetOrCreateSymbolAsync_inserts_a_new_symbol_once()
     {
-        await using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateWriteContext();
         var repository = new InstrumentRepository(context);
 
         var first = await repository.GetOrCreateSymbolAsync(
@@ -87,7 +87,7 @@ public sealed class InstrumentRepositoryTests(TimescaleDatabaseFixture fixture)
     [Fact]
     public async Task GetOrCreateSymbolAsync_blank_symbol_throws()
     {
-        await using var context = _fixture.CreateContext();
+        await using var context = _fixture.CreateWriteContext();
         var repository = new InstrumentRepository(context);
 
         await Assert.ThrowsAsync<ArgumentException>(() =>

@@ -13,9 +13,9 @@ namespace HTB.Shared.Tests;
 /// </summary>
 public sealed class MigrationDownTests : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("timescale/timescaledb:latest-pg17")
-        .Build();
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder(
+        "timescale/timescaledb:latest-pg17"
+    ).Build();
 
     public Task InitializeAsync() => _container.StartAsync();
 
@@ -24,13 +24,13 @@ public sealed class MigrationDownTests : IAsyncLifetime
     [Fact]
     public async Task Down_drops_every_table_the_migration_created()
     {
-        var options = new DbContextOptionsBuilder<MarketDataDbContext>()
+        var options = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
             .UseNpgsql(
                 _container.GetConnectionString(),
                 npgsql => npgsql.MigrationsAssembly("HTB.MarketData.Migrations")
             )
             .Options;
-        await using var context = new MarketDataDbContext(options);
+        await using var context = new MarketDataReadonlyDbContext(options);
 
         await context.Database.MigrateAsync();
         Assert.Equal(3, await CountMarketdataTablesAsync(context));
@@ -42,7 +42,9 @@ public sealed class MigrationDownTests : IAsyncLifetime
         Assert.Equal(0, await CountMarketdataTablesAsync(context));
     }
 
-    private static async Task<int> CountMarketdataTablesAsync(MarketDataDbContext context) =>
+    private static async Task<int> CountMarketdataTablesAsync(
+        MarketDataReadonlyDbContext context
+    ) =>
         await context
             .Database.SqlQuery<int>(
                 $"""

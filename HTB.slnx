@@ -9,7 +9,6 @@
   </Folder>
   <Folder Name="/tests/marketdata/">
     <Project Path="tests/marketdata/HTB.MarketData.Loader.Tests/HTB.MarketData.Loader.Tests.csproj" />
-    <Project Path="tests/marketdata/HTB.MarketData.Migrations.Tests/HTB.MarketData.Migrations.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/shared/">
     <Project Path="tests/shared/HTB.Shared.Tests/HTB.Shared.Tests.csproj" />

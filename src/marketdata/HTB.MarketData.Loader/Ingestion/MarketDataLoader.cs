@@ -1,5 +1,6 @@
 using HTB.MarketData.Loader.Binance;
 using HTB.MarketData.Loader.Configuration;
+using HTB.MarketData.Loader.Persistence;
 using HTB.Shared.MarketData.Abstractions;
 using HTB.Shared.MarketData.Domain;
 
@@ -9,12 +10,14 @@ namespace HTB.MarketData.Loader.Ingestion;
 /// Drives a backfill: for every <see cref="SymbolLoadSpec"/> it resolves the Binance exchange
 /// and symbol rows, pulls klines for each requested timeframe, and upserts them as
 /// <see cref="Candle"/>s. Re-running is safe — every write is idempotent on the candle's
-/// natural key.
+/// natural key. Reads (the resume point) come from HTB.Shared's <see cref="ICandleRepository"/>;
+/// writes go through the loader-owned <see cref="ICandleWriter"/>.
 /// </summary>
 public sealed class MarketDataLoader(
     IBinanceMarketDataClient client,
     IInstrumentRepository instruments,
-    ICandleRepository candles,
+    ICandleRepository candleReader,
+    ICandleWriter candleWriter,
     TimeProvider timeProvider,
     Action<string>? log = null
 )
@@ -24,7 +27,8 @@ public sealed class MarketDataLoader(
 
     private readonly IBinanceMarketDataClient _client = client;
     private readonly IInstrumentRepository _instruments = instruments;
-    private readonly ICandleRepository _candles = candles;
+    private readonly ICandleRepository _candleReader = candleReader;
+    private readonly ICandleWriter _candleWriter = candleWriter;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly Action<string> _log = log ?? (_ => { });
 
@@ -75,7 +79,11 @@ public sealed class MarketDataLoader(
             // Resume from the last stored bar so restarting the loader only fetches new candles
             // instead of re-downloading the whole range. Re-reading that one bar is harmless —
             // the upsert is idempotent. With no prior data we backfill from the requested start.
-            var latest = await _candles.GetLatestAsync(symbol.Id, timeframe, cancellationToken);
+            var latest = await _candleReader.GetLatestAsync(
+                symbol.Id,
+                timeframe,
+                cancellationToken
+            );
             var from = latest?.OpenTime ?? spec.From;
 
             // Flush every page (up to ~1000 bars) as it arrives so a long backfill is persisted
@@ -99,7 +107,7 @@ public sealed class MarketDataLoader(
                     .Select(k => ToCandle(exchangeId, symbol.Id, timeframe, k))
                     .ToList();
 
-                loaded += await _candles.UpsertAsync(mapped, cancellationToken);
+                loaded += await _candleWriter.UpsertAsync(mapped, cancellationToken);
 
                 // The final page (and an empty page, which carries no bar to measure against) is
                 // 100%; intermediate pages are estimated from how much of the time window the last

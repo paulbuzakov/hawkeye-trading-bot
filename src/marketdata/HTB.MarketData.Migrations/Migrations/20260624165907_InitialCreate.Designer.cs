@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HTB.MarketData.Migrations.Migrations
 {
-    [DbContext(typeof(MarketDataDbContext))]
+    [DbContext(typeof(MarketDataReadonlyDbContext))]
     [Migration("20260624165907_InitialCreate")]
     partial class InitialCreate
     {
