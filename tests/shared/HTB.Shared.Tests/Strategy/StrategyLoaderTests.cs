@@ -62,6 +62,61 @@ public class StrategyLoaderTests
         Assert.Equal(StrategyStatus.Active, def.Manifest.Version.Status);
     }
 
+    // ---- Validate (non-throwing check step) ------------------------------
+
+    [Fact]
+    public void Validate_passes_a_draft_as_valid_but_not_runnable()
+    {
+        var result = Loader.Validate(Json(ValidMeta()), Json(ValidRules()));
+
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+        Assert.False(result.IsRunnable); // draft loads but must not run
+        Assert.Equal("rsi-movement", result.Definition!.Manifest.Id);
+    }
+
+    [Fact]
+    public void Validate_passes_an_active_hash_verified_strategy_as_runnable()
+    {
+        var rulesJson = Json(ValidRules());
+        var meta = ValidMeta();
+        D(meta["version"])["status"] = "active";
+        D(meta["version"])["rules-hash"] = HashOf(rulesJson);
+
+        var result = Loader.Validate(Json(meta), rulesJson);
+
+        Assert.True(result.IsValid);
+        Assert.True(result.IsRunnable);
+    }
+
+    [Fact]
+    public void Validate_returns_an_invalid_verdict_instead_of_throwing()
+    {
+        var badMeta = ValidMeta();
+        D(badMeta["version"])["status"] = "active"; // keeps the all-zero placeholder hash → mismatch
+
+        var result = Loader.Validate(Json(badMeta), Json(ValidRules()));
+
+        Assert.False(result.IsValid);
+        Assert.Null(result.Definition);
+        Assert.False(result.IsRunnable);
+        Assert.Single(result.Errors);
+    }
+
+    [Fact]
+    public void Validate_null_arguments_still_throw_argument_null()
+    {
+        Assert.Throws<ArgumentNullException>(() => Loader.Validate(null!, Json(ValidRules())));
+        Assert.Throws<ArgumentNullException>(() => Loader.Validate(Json(ValidMeta()), null!));
+    }
+
+    [Fact]
+    public void Validation_result_factories_guard_their_arguments()
+    {
+        Assert.Throws<ArgumentNullException>(() => StrategyValidationResult.Valid(null!));
+        Assert.Throws<ArgumentException>(() => StrategyValidationResult.Invalid(" "));
+    }
+
     [Fact]
     public void Active_version_with_a_mismatched_hash_is_rejected()
     {

@@ -10,4 +10,11 @@ namespace HTB.Shared.Strategy.Abstractions;
 public interface IStrategyLoader
 {
     StrategyDefinition Load(string manifestJson, string rulesJson);
+
+    /// <summary>
+    /// Non-throwing check step: returns whether the pair would load (and the loaded definition when it
+    /// does), instead of throwing on the first validation failure. For governance/registry admission.
+    /// A null argument is still a programming error and throws <see cref="ArgumentNullException"/>.
+    /// </summary>
+    StrategyValidationResult Validate(string manifestJson, string rulesJson);
 }

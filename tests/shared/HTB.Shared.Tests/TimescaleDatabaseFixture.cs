@@ -27,7 +27,10 @@ public sealed class TimescaleDatabaseFixture : IAsyncLifetime
         var options = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
             .UseNpgsql(
                 ConnectionString,
-                npgsql => npgsql.MigrationsAssembly("HTB.MarketData.Migrations")
+                npgsql =>
+                    npgsql
+                        .MigrationsAssembly("HTB.MarketData.Migrations")
+                        .MigrationsHistoryTable("__EFMigrationsHistory", "marketdata")
             )
             .Options;
         return new MarketDataReadonlyDbContext(options);
