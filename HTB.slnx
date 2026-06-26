@@ -7,17 +7,4 @@
   <Folder Name="/src/shared/">
     <Project Path="src/shared/HTB.Shared/HTB.Shared.csproj" />
   </Folder>
-  <Folder Name="/src/strategy/">
-    <Project Path="src/strategy/HTB.Strategy.Loader/HTB.Strategy.Loader.csproj" />
-    <Project Path="src/strategy/HTB.Strategy.Migrations/HTB.Strategy.Migrations.csproj" />
-  </Folder>
-  <Folder Name="/tests/marketdata/">
-    <Project Path="tests/marketdata/HTB.MarketData.Loader.Tests/HTB.MarketData.Loader.Tests.csproj" />
-  </Folder>
-  <Folder Name="/tests/shared/">
-    <Project Path="tests/shared/HTB.Shared.Tests/HTB.Shared.Tests.csproj" />
-  </Folder>
-  <Folder Name="/tests/strategy/">
-    <Project Path="tests/strategy/HTB.Strategy.Loader.Tests/HTB.Strategy.Loader.Tests.csproj" />
-  </Folder>
 </Solution>
