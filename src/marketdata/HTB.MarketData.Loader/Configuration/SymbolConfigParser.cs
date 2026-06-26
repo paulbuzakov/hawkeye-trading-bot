@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Configuration;
 
@@ -18,7 +18,7 @@ namespace HTB.MarketData.Loader.Configuration;
 /// </summary>
 public static class SymbolConfigParser
 {
-    private static readonly JsonSerializerOptions Options = new()
+    private static readonly JsonSerializerOptions _options = new()
     {
         PropertyNameCaseInsensitive = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
@@ -44,7 +44,7 @@ public static class SymbolConfigParser
         List<Entry?>? entries;
         try
         {
-            entries = JsonSerializer.Deserialize<List<Entry?>>(json, Options);
+            entries = JsonSerializer.Deserialize<List<Entry?>>(json, _options);
         }
         catch (JsonException ex)
         {
@@ -79,9 +79,7 @@ public static class SymbolConfigParser
 
         if (entry.Timeframes is null || entry.Timeframes.Count == 0)
         {
-            throw new SymbolConfigException(
-                $"Entry \"{entry.Ticket}\" must list at least one timeframe."
-            );
+            throw new SymbolConfigException($"Entry \"{entry.Ticket}\" must list at least one timeframe.");
         }
 
         var timeframes = new List<Timeframe>(entry.Timeframes.Count);
@@ -89,9 +87,7 @@ public static class SymbolConfigParser
         {
             if (!Enum.TryParse<Timeframe>(raw, ignoreCase: true, out var tf) || !Enum.IsDefined(tf))
             {
-                throw new SymbolConfigException(
-                    $"Entry \"{entry.Ticket}\" has an unknown timeframe \"{raw}\"."
-                );
+                throw new SymbolConfigException($"Entry \"{entry.Ticket}\" has an unknown timeframe \"{raw}\".");
             }
 
             timeframes.Add(tf);
@@ -99,21 +95,15 @@ public static class SymbolConfigParser
 
         if (entry.DateRange is null)
         {
-            throw new SymbolConfigException(
-                $"Entry \"{entry.Ticket}\" is missing a \"date-range\"."
-            );
+            throw new SymbolConfigException($"Entry \"{entry.Ticket}\" is missing a \"date-range\".");
         }
 
         var from = ParseDate(entry.DateRange.From, entry.Ticket, "from");
-        DateTimeOffset? to = entry.DateRange.To is null
-            ? null
-            : ParseDate(entry.DateRange.To, entry.Ticket, "to");
+        DateTimeOffset? to = entry.DateRange.To is null ? null : ParseDate(entry.DateRange.To, entry.Ticket, "to");
 
         if (to is { } upperBound && upperBound < from)
         {
-            throw new SymbolConfigException(
-                $"Entry \"{entry.Ticket}\" has a \"to\" date before its \"from\" date."
-            );
+            throw new SymbolConfigException($"Entry \"{entry.Ticket}\" has a \"to\" date before its \"from\" date.");
         }
 
         return new SymbolLoadSpec(entry.Ticket, timeframes, from, to);
@@ -123,9 +113,7 @@ public static class SymbolConfigParser
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new SymbolConfigException(
-                $"Entry \"{ticket}\" is missing a \"{field}\" date in its \"date-range\"."
-            );
+            throw new SymbolConfigException($"Entry \"{ticket}\" is missing a \"{field}\" date in its \"date-range\".");
         }
 
         if (
@@ -137,9 +125,7 @@ public static class SymbolConfigParser
             )
         )
         {
-            throw new SymbolConfigException(
-                $"Entry \"{ticket}\" has an invalid \"{field}\" date \"{value}\"."
-            );
+            throw new SymbolConfigException($"Entry \"{ticket}\" has an invalid \"{field}\" date \"{value}\".");
         }
 
         return parsed;

@@ -1,4 +1,4 @@
-namespace HTB.Shared.MarketData.Persistence;
+namespace HTB.MarketData.Shared.Persistence;
 
 /// <summary>
 /// Read-only context for the candle store and the EF migration target (the snapshot and the
@@ -7,9 +7,8 @@ namespace HTB.Shared.MarketData.Persistence;
 /// <c>MarketDataWriteDbContext</c>. The relational mapping lives in
 /// <see cref="MarketDataDbContextBase"/>, shared by both sides.
 /// </summary>
-public sealed class MarketDataReadonlyDbContext(
-    DbContextOptions<MarketDataReadonlyDbContext> options
-) : MarketDataDbContextBase(options)
+public sealed class MarketDataReadonlyDbContext(DbContextOptions<MarketDataReadonlyDbContext> options)
+    : MarketDataDbContextBase(options)
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);

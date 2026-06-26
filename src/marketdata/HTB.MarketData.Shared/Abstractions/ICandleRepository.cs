@@ -1,6 +1,6 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
-namespace HTB.Shared.MarketData.Abstractions;
+namespace HTB.MarketData.Shared.Abstractions;
 
 /// <summary>
 /// Read-only query gateway for OHLCV candles. Lives in HTB.Shared so any consumer (backtests,
@@ -24,9 +24,5 @@ public interface ICandleRepository
     /// <summary>
     /// Returns the most recent candle for a symbol/interval, or <c>null</c> if none exist.
     /// </summary>
-    Task<Candle?> GetLatestAsync(
-        int symbolId,
-        Timeframe interval,
-        CancellationToken cancellationToken = default
-    );
+    Task<Candle?> GetLatestAsync(int symbolId, Timeframe interval, CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,4 @@
-namespace HTB.Shared.MarketData.Domain;
+namespace HTB.MarketData.Shared.Domain;
 
 /// <summary>
 /// A tradable instrument (trading pair) on a specific <see cref="Exchange"/>.

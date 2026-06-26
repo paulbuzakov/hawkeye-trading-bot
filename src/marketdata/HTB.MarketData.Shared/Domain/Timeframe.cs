@@ -1,4 +1,4 @@
-namespace HTB.Shared.MarketData.Domain;
+namespace HTB.MarketData.Shared.Domain;
 
 /// <summary>
 /// Candle (kline) timeframe, named with the common financial shorthand (minutes/hours/days).

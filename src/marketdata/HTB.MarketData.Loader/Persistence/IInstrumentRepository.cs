@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Persistence;
 
@@ -15,11 +15,7 @@ public interface IInstrumentRepository
     /// Returns the exchange with the given <paramref name="code"/>, inserting it with
     /// <paramref name="name"/> if it does not exist yet.
     /// </summary>
-    Task<Exchange> GetOrCreateExchangeAsync(
-        string code,
-        string name,
-        CancellationToken cancellationToken = default
-    );
+    Task<Exchange> GetOrCreateExchangeAsync(string code, string name, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns the symbol identified by (<paramref name="exchangeId"/>,

@@ -41,20 +41,6 @@ services:
     # One-shot: applies pending migrations and exits.
     restart: "no"
 
-  strategy-migrations:
-    container_name: strategy-migrations
-    build:
-      context: ..
-      dockerfile: deploy/strategy/migrations.Dockerfile
-    image: hawkeye-trading-bot/strategy-migrations
-    environment:
-      HTB_CONNECTION_STRING: "Host=timescale-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
-    depends_on:
-      timescale-db:
-        condition: service_healthy
-    # One-shot: applies pending migrations and exits.
-    restart: "no"
-
   marketdata-loader:
     container_name: marketdata-loader
     build:

@@ -1,3 +1,5 @@
+using HTB.MarketData.Shared.Persistence;
+
 namespace HTB.MarketData.Migrations;
 
 /// <summary>
@@ -8,8 +10,7 @@ namespace HTB.MarketData.Migrations;
 /// migration target that owns the snapshot) and live in this assembly, separate from the
 /// context in HTB.Shared, so the assembly name is pinned explicitly.
 /// </summary>
-public sealed class MarketDataReadonlyDbContextFactory
-    : IDesignTimeDbContextFactory<MarketDataReadonlyDbContext>
+public sealed class MarketDataReadonlyDbContextFactory : IDesignTimeDbContextFactory<MarketDataReadonlyDbContext>
 {
     internal const string ConnectionStringEnvVar = "HTB_CONNECTION_STRING";
     internal const string MigrationsAssembly = "HTB.MarketData.Migrations";
@@ -23,13 +24,11 @@ public sealed class MarketDataReadonlyDbContextFactory
     // present. EF only needs a syntactically valid string to construct the model;
     // it never opens a connection. The real connection is supplied at runtime via
     // HTB_CONNECTION_STRING or the bundle's `--connection` flag.
-    internal const string DefaultConnectionString =
-        "Host=localhost;Port=5432;Database=hawkeye;Username=hawkeye";
+    internal const string DefaultConnectionString = "Host=localhost;Port=5432;Database=hawkeye;Username=hawkeye";
 
     public MarketDataReadonlyDbContext CreateDbContext(string[] args)
     {
-        var connectionString =
-            Environment.GetEnvironmentVariable(ConnectionStringEnvVar) ?? DefaultConnectionString;
+        var connectionString = Environment.GetEnvironmentVariable(ConnectionStringEnvVar) ?? DefaultConnectionString;
 
         var options = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
             .UseNpgsql(
