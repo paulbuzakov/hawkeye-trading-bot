@@ -21,5 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\shared\HTB.Shared\HTB.Shared.csproj" />
     <ProjectReference Include="..\..\..\src\marketdata\HTB.MarketData.Migrations\HTB.MarketData.Migrations.csproj" />
+    <ProjectReference Include="..\..\..\src\marketdata\HTB.MarketData.Loader\HTB.MarketData.Loader.csproj" />
   </ItemGroup>
 </Project>

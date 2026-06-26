@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="HTB.Shared.MarketData.Persistence" />
     <Using Include="Microsoft.EntityFrameworkCore" />
     <Using Include="Microsoft.EntityFrameworkCore.Design" />

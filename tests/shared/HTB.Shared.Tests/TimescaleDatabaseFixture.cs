@@ -1,3 +1,4 @@
+using HTB.MarketData.Loader.Persistence;
 using HTB.Shared.MarketData.Domain;
 using HTB.Shared.MarketData.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,9 @@ namespace HTB.Shared.Tests;
 /// </summary>
 public sealed class TimescaleDatabaseFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
-        .WithImage("timescale/timescaledb:latest-pg17")
-        .Build();
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder(
+        "timescale/timescaledb:latest-pg17"
+    ).Build();
 
     public int ExchangeId { get; private set; }
 
@@ -21,15 +22,23 @@ public sealed class TimescaleDatabaseFixture : IAsyncLifetime
 
     private string ConnectionString => _container.GetConnectionString();
 
-    public MarketDataDbContext CreateContext()
+    public MarketDataReadonlyDbContext CreateContext()
     {
-        var options = new DbContextOptionsBuilder<MarketDataDbContext>()
+        var options = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
             .UseNpgsql(
                 ConnectionString,
                 npgsql => npgsql.MigrationsAssembly("HTB.MarketData.Migrations")
             )
             .Options;
-        return new MarketDataDbContext(options);
+        return new MarketDataReadonlyDbContext(options);
+    }
+
+    public MarketDataWriteDbContext CreateWriteContext()
+    {
+        var options = new DbContextOptionsBuilder<MarketDataWriteDbContext>()
+            .UseNpgsql(ConnectionString)
+            .Options;
+        return new MarketDataWriteDbContext(options);
     }
 
     public async Task InitializeAsync()

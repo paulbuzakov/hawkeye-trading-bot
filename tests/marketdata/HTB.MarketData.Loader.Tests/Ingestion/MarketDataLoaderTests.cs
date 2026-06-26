@@ -33,6 +33,7 @@ public class MarketDataLoaderTests
             client,
             instruments,
             candles,
+            candles,
             new FixedTimeProvider(Now),
             log.Add
         );
@@ -86,6 +87,7 @@ public class MarketDataLoaderTests
             client,
             new FakeInstrumentRepository(),
             candles,
+            candles,
             new FixedTimeProvider(Now),
             log.Add
         );
@@ -125,6 +127,7 @@ public class MarketDataLoaderTests
             client,
             new FakeInstrumentRepository(),
             new FakeCandleRepository(),
+            new FakeCandleRepository(),
             new FixedTimeProvider(Now),
             log.Add
         );
@@ -157,6 +160,7 @@ public class MarketDataLoaderTests
             client,
             new FakeInstrumentRepository(),
             candles,
+            candles,
             new FixedTimeProvider(Now)
         );
 
@@ -178,6 +182,7 @@ public class MarketDataLoaderTests
         var loader = new MarketDataLoader(
             client,
             new FakeInstrumentRepository(),
+            new FakeCandleRepository(),
             new FakeCandleRepository(),
             new FixedTimeProvider(Now)
         );
@@ -203,6 +208,7 @@ public class MarketDataLoaderTests
             client,
             new FakeInstrumentRepository(),
             candles,
+            candles,
             new FixedTimeProvider(Now)
         );
 
@@ -227,6 +233,7 @@ public class MarketDataLoaderTests
             client,
             new FakeInstrumentRepository(),
             new FakeCandleRepository(),
+            new FakeCandleRepository(),
             new FixedTimeProvider(Now)
         );
 
@@ -248,6 +255,7 @@ public class MarketDataLoaderTests
             client,
             new FakeInstrumentRepository(),
             new FakeCandleRepository(),
+            new FakeCandleRepository(),
             new FixedTimeProvider(Now)
         );
 
@@ -265,6 +273,7 @@ public class MarketDataLoaderTests
             new FakeBinanceClient(),
             new FakeInstrumentRepository(),
             new FakeCandleRepository(),
+            new FakeCandleRepository(),
             new FixedTimeProvider(Now)
         );
 
@@ -279,6 +288,7 @@ public class MarketDataLoaderTests
         var loader = new MarketDataLoader(
             new FakeBinanceClient(),
             new FakeInstrumentRepository(),
+            new FakeCandleRepository(),
             new FakeCandleRepository(),
             new FixedTimeProvider(Now)
         );

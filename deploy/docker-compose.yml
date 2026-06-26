@@ -8,20 +8,18 @@
 name: hawkeye-trading-bot
 
 services:
-  marketdata-db:
-    container_name: marketdata-db
-    build:
-      context: ./marketdata/db/
-      dockerfile: Dockerfile
-    image: hawkeye-trading-bot/marketdata-db
+
+  timescale-db:
+    container_name: timescale-db
+    image: timescale/timescaledb:latest-pg17
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-hawkeye}
+      POSTGRES_DB: ${POSTGRES_DB:-hawkeye-db}
       POSTGRES_USER: ${POSTGRES_USER:-hawkeye}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hawkeye}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - ./marketdata/db/pgdata:/var/lib/postgresql/data
+      - ./timescale-db/pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hawkeye} -d ${POSTGRES_DB:-hawkeye}"]
       interval: 5s
@@ -29,16 +27,16 @@ services:
       retries: 10
     restart: unless-stopped
 
-  marketdata-db-migrations:
-    container_name: marketdata-db-migrations
+  marketdata-migrations:
+    container_name: marketdata-migrations
     build:
       context: ..
-      dockerfile: deploy/marketdata/db-migrations/Dockerfile
-    image: hawkeye-trading-bot/marketdata-db-migrations
+      dockerfile: deploy/marketdata/migrations.Dockerfile
+    image: hawkeye-trading-bot/marketdata-migrations
     environment:
-      HTB_MARKETDATA_DB: "Host=marketdata-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
+      HTB_CONNECTION_STRING: "Host=timescale-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
     depends_on:
-      marketdata-db:
+      timescale-db:
         condition: service_healthy
     # One-shot: applies pending migrations and exits.
     restart: "no"
@@ -47,13 +45,14 @@ services:
     container_name: marketdata-loader
     build:
       context: ..
-      dockerfile: deploy/marketdata/loader/Dockerfile
+      dockerfile: deploy/marketdata/loader.Dockerfile
     image: hawkeye-trading-bot/marketdata-loader
     environment:
-      HTB_MARKETDATA_DB: "Host=marketdata-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
+      HTB_CONNECTION_STRING: "Host=timescale-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
+      HTB_SYMBOLS_FILE: "/app/symbols.json"
     depends_on:
-      marketdata-db:
+      timescale-db:
         condition: service_healthy
-      marketdata-db-migrations:
+      marketdata-migrations:
         condition: service_completed_successfully
     restart: on-failure

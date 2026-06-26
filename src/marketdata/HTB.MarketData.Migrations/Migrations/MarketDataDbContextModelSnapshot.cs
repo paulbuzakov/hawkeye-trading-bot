@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HTB.MarketData.Migrations.Migrations
 {
-    [DbContext(typeof(MarketDataDbContext))]
+    [DbContext(typeof(MarketDataReadonlyDbContext))]
     partial class MarketDataDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
