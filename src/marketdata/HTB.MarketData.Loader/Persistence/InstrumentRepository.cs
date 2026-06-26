@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace HTB.MarketData.Loader.Persistence;
@@ -20,10 +20,7 @@ public sealed class InstrumentRepository(MarketDataWriteDbContext db) : IInstrum
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 
-        var existing = await _db.Exchanges.FirstOrDefaultAsync(
-            e => e.Code == code,
-            cancellationToken
-        );
+        var existing = await _db.Exchanges.FirstOrDefaultAsync(e => e.Code == code, cancellationToken);
         if (existing is not null)
         {
             return existing;

@@ -1,4 +1,4 @@
-namespace HTB.Shared.MarketData.Domain;
+namespace HTB.MarketData.Shared.Domain;
 
 /// <summary>
 /// A trading venue (exchange) that market data is sourced from. Exchange-agnostic:

@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Binance;
 
@@ -8,10 +8,7 @@ namespace HTB.MarketData.Loader.Binance;
 /// </summary>
 public static class BinanceIntervals
 {
-    private static readonly IReadOnlyDictionary<Timeframe, string> Codes = new Dictionary<
-        Timeframe,
-        string
-    >
+    private static readonly IReadOnlyDictionary<Timeframe, string> _codes = new Dictionary<Timeframe, string>
     {
         [Timeframe.M1] = "1m",
         [Timeframe.M5] = "5m",
@@ -25,7 +22,7 @@ public static class BinanceIntervals
     /// <exception cref="ArgumentOutOfRangeException">The timeframe has no Binance mapping.</exception>
     public static string ToCode(Timeframe timeframe)
     {
-        if (Codes.TryGetValue(timeframe, out var code))
+        if (_codes.TryGetValue(timeframe, out var code))
         {
             return code;
         }

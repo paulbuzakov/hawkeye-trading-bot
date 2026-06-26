@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Binance;
 
@@ -8,10 +8,7 @@ namespace HTB.MarketData.Loader.Binance;
 public interface IBinanceMarketDataClient
 {
     /// <summary>Returns the base/quote asset breakdown for <paramref name="ticker"/>.</summary>
-    Task<BinanceSymbolInfo> GetSymbolInfoAsync(
-        string ticker,
-        CancellationToken cancellationToken = default
-    );
+    Task<BinanceSymbolInfo> GetSymbolInfoAsync(string ticker, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Streams every closed kline for <paramref name="ticker"/> at <paramref name="interval"/>

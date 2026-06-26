@@ -1,8 +1,8 @@
 using HTB.MarketData.Loader.Binance;
 using HTB.MarketData.Loader.Configuration;
 using HTB.MarketData.Loader.Persistence;
-using HTB.Shared.MarketData.Abstractions;
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Abstractions;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Ingestion;
 
@@ -42,11 +42,7 @@ public sealed class MarketDataLoader(
     {
         ArgumentNullException.ThrowIfNull(specs);
 
-        var exchange = await _instruments.GetOrCreateExchangeAsync(
-            ExchangeCode,
-            ExchangeName,
-            cancellationToken
-        );
+        var exchange = await _instruments.GetOrCreateExchangeAsync(ExchangeCode, ExchangeName, cancellationToken);
 
         var total = 0;
         foreach (var spec in specs)
@@ -57,11 +53,7 @@ public sealed class MarketDataLoader(
         return total;
     }
 
-    private async Task<int> LoadSymbolAsync(
-        int exchangeId,
-        SymbolLoadSpec spec,
-        CancellationToken cancellationToken
-    )
+    private async Task<int> LoadSymbolAsync(int exchangeId, SymbolLoadSpec spec, CancellationToken cancellationToken)
     {
         var info = await _client.GetSymbolInfoAsync(spec.Ticker, cancellationToken);
         var symbol = await _instruments.GetOrCreateSymbolAsync(
@@ -79,23 +71,13 @@ public sealed class MarketDataLoader(
             // Resume from the last stored bar so restarting the loader only fetches new candles
             // instead of re-downloading the whole range. Re-reading that one bar is harmless —
             // the upsert is idempotent. With no prior data we backfill from the requested start.
-            var latest = await _candleReader.GetLatestAsync(
-                symbol.Id,
-                timeframe,
-                cancellationToken
-            );
+            var latest = await _candleReader.GetLatestAsync(symbol.Id, timeframe, cancellationToken);
             var from = latest?.OpenTime ?? spec.From;
 
             // Flush every page (up to ~1000 bars) as it arrives so a long backfill is persisted
             // incrementally and progress is visible, instead of buffering the whole range.
             var loaded = 0;
-            var stream = _client.StreamKlinesAsync(
-                spec.Ticker,
-                timeframe,
-                from,
-                to,
-                cancellationToken
-            );
+            var stream = _client.StreamKlinesAsync(spec.Ticker, timeframe, from, to, cancellationToken);
 
             await foreach (var page in stream.WithCancellation(cancellationToken))
             {
@@ -113,10 +95,8 @@ public sealed class MarketDataLoader(
                 // 100%; intermediate pages are estimated from how much of the time window the last
                 // bar covers.
                 var percent =
-                    page.IsFinal || page.Klines.Count == 0
-                        ? 100
-                        : PercentOfRange(from, to, page.Klines[^1].OpenTime);
-                _log($"[{percent,3:0}%] {spec.Ticker} {timeframe}: {loaded} candles");
+                    page.IsFinal || page.Klines.Count == 0 ? 100 : PercentOfRange(from, to, page.Klines[^1].OpenTime);
+                _log($"[{percent:0.000}%] {spec.Ticker} {timeframe}: {loaded} candles");
             }
 
             written += loaded;
@@ -140,12 +120,7 @@ public sealed class MarketDataLoader(
         return Math.Round((decimal)Math.Clamp((at - from).Ticks * 100.00 / span, 0, 100), 3);
     }
 
-    private static Candle ToCandle(
-        int exchangeId,
-        int symbolId,
-        Timeframe interval,
-        BinanceKline kline
-    ) =>
+    private static Candle ToCandle(int exchangeId, int symbolId, Timeframe interval, BinanceKline kline) =>
         new()
         {
             ExchangeId = exchangeId,

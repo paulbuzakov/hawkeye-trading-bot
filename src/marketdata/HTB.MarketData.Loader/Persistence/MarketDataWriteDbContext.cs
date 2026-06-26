@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Persistence;
+using HTB.MarketData.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace HTB.MarketData.Loader.Persistence;

@@ -19,7 +19,7 @@ RUN dotnet tool install --global dotnet-ef --version 10.0.4
 # Restore against the csproj graph first for layer caching.
 COPY nuget.config HTB.slnx ./
 COPY src/marketdata/HTB.MarketData.Migrations/HTB.MarketData.Migrations.csproj src/marketdata/HTB.MarketData.Migrations/
-COPY src/shared/HTB.Shared/HTB.Shared.csproj src/shared/HTB.Shared/
+COPY src/marketdata/HTB.MarketData.Shared/HTB.MarketData.Shared.csproj src/marketdata/HTB.MarketData.Shared/
 RUN dotnet restore src/marketdata/HTB.MarketData.Migrations/HTB.MarketData.Migrations.csproj
 
 COPY src/ src/

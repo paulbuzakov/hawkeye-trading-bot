@@ -11,7 +11,7 @@ WORKDIR /src
 # project file (i.e. a dependency) actually changes.
 COPY nuget.config HTB.slnx ./
 COPY src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.csproj src/marketdata/HTB.MarketData.Loader/
-COPY src/shared/HTB.Shared/HTB.Shared.csproj src/shared/HTB.Shared/
+COPY src/marketdata/HTB.MarketData.Shared/HTB.MarketData.Shared.csproj src/marketdata/HTB.MarketData.Shared/
 RUN dotnet restore src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.csproj
 
 # Copy the rest of the sources and publish a framework-dependent build.

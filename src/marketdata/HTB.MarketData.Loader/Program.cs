@@ -3,7 +3,7 @@ using HTB.MarketData.Loader.Binance;
 using HTB.MarketData.Loader.Configuration;
 using HTB.MarketData.Loader.Ingestion;
 using HTB.MarketData.Loader.Persistence;
-using HTB.Shared.MarketData.Persistence;
+using HTB.MarketData.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace HTB.MarketData.Loader;

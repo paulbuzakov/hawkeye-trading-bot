@@ -1,4 +1,4 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Configuration;
 

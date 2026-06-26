@@ -1,6 +1,6 @@
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
-namespace HTB.Shared.MarketData.Persistence;
+namespace HTB.MarketData.Shared.Persistence;
 
 /// <summary>
 /// Shared EF Core model for the candle store (PostgreSQL + TimescaleDB). Maps the
@@ -41,11 +41,7 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
             entity.Property(s => s.QuoteAsset).HasColumnName("quote_asset").IsRequired();
             entity.Property(s => s.ExchangeSymbol).HasColumnName("exchange_symbol").IsRequired();
             entity.HasIndex(s => new { s.ExchangeId, s.ExchangeSymbol }).IsUnique();
-            entity
-                .HasOne<Exchange>()
-                .WithMany()
-                .HasForeignKey(s => s.ExchangeId)
-                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Exchange>().WithMany().HasForeignKey(s => s.ExchangeId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Candle>(entity =>
@@ -70,10 +66,7 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
             entity.Property(c => c.QuoteVolume).HasColumnName("quote_volume");
             entity.Property(c => c.TradeCount).HasColumnName("trade_count");
             entity.Property(c => c.IsClosed).HasColumnName("is_closed");
-            entity
-                .Property(c => c.IngestedAt)
-                .HasColumnName("ingested_at")
-                .HasDefaultValueSql("now()");
+            entity.Property(c => c.IngestedAt).HasColumnName("ingested_at").HasDefaultValueSql("now()");
             entity
                 .HasIndex(c => new
                 {
@@ -82,11 +75,7 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
                     c.OpenTime,
                 })
                 .HasDatabaseName("ix_candles_symbol_interval_time");
-            entity
-                .HasOne<Symbol>()
-                .WithMany()
-                .HasForeignKey(c => c.SymbolId)
-                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Symbol>().WithMany().HasForeignKey(c => c.SymbolId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

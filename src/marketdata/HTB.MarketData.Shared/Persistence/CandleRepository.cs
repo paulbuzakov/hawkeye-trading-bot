@@ -1,7 +1,7 @@
-using HTB.Shared.MarketData.Abstractions;
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Abstractions;
+using HTB.MarketData.Shared.Domain;
 
-namespace HTB.Shared.MarketData.Persistence;
+namespace HTB.MarketData.Shared.Persistence;
 
 /// <summary>
 /// EF Core / PostgreSQL read implementation of <see cref="ICandleRepository"/>. Runs on the
@@ -22,10 +22,7 @@ public sealed class CandleRepository(MarketDataReadonlyDbContext db) : ICandleRe
     {
         return await _db
             .Candles.Where(c =>
-                c.SymbolId == symbolId
-                && c.Interval == interval
-                && c.OpenTime >= from
-                && c.OpenTime <= to
+                c.SymbolId == symbolId && c.Interval == interval && c.OpenTime >= from && c.OpenTime <= to
             )
             .OrderBy(c => c.OpenTime)
             .ToListAsync(cancellationToken);

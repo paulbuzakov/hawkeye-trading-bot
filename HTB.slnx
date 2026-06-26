@@ -3,8 +3,6 @@
   <Folder Name="/src/marketdata/">
     <Project Path="src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.csproj" />
     <Project Path="src/marketdata/HTB.MarketData.Migrations/HTB.MarketData.Migrations.csproj" />
-  </Folder>
-  <Folder Name="/src/shared/">
-    <Project Path="src/shared/HTB.Shared/HTB.Shared.csproj" />
+    <Project Path="src/marketdata/HTB.MarketData.Shared/HTB.MarketData.Shared.csproj" />
   </Folder>
 </Solution>

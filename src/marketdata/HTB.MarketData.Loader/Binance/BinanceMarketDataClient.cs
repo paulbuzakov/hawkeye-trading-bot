@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using HTB.Shared.MarketData.Domain;
+using HTB.MarketData.Shared.Domain;
 
 namespace HTB.MarketData.Loader.Binance;
 
@@ -33,9 +33,7 @@ public sealed class BinanceMarketDataClient(HttpClient httpClient) : IBinanceMar
         var symbols = document.RootElement.GetProperty("symbols");
         if (symbols.GetArrayLength() == 0)
         {
-            throw new InvalidOperationException(
-                $"Binance returned no symbol metadata for \"{ticker}\"."
-            );
+            throw new InvalidOperationException($"Binance returned no symbol metadata for \"{ticker}\".");
         }
 
         var symbol = symbols[0];

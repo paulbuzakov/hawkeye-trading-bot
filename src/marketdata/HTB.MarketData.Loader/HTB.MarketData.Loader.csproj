@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\shared\HTB.Shared\HTB.Shared.csproj" />
+    <Content Include="symbols.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="symbols.json" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\HTB.MarketData.Shared\HTB.MarketData.Shared.csproj" />
   </ItemGroup>
 </Project>
