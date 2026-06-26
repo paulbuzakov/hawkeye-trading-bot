@@ -7,8 +7,9 @@ namespace HTB.Strategy.Loader;
 /// <summary>
 /// Console entry point for loading/validating strategies: <c>htb-strategy [--save] &lt;path&gt; [more...]</c>,
 /// where each path is a <c>.htbstrat</c> package archive or a directory holding <c>meta.json</c> +
-/// <c>rules.json</c>. With <c>--save</c> and <c>HTB_CONNECTION_STRING</c> set, each valid strategy is
-/// persisted into the registry. Pure composition (real file I/O + console + PostgreSQL wiring), so it
+/// <c>rules.json</c>. With <c>--save</c>, each valid strategy is persisted into the registry, using
+/// <c>HTB_CONNECTION_STRING</c> when set or a local default otherwise. Pure composition (real file I/O
+/// + console + PostgreSQL wiring), so it
 /// is excluded from coverage; the testable logic lives in <see cref="StrategyLoader"/>.
 /// </summary>
 [ExcludeFromCodeCoverage]
@@ -22,31 +23,24 @@ internal static class Program
         var jsonLoader = new Shared.Strategy.Strategy.StrategyLoader();
         var packageLoader = new Shared.Strategy.Strategy.StrategyPackageLoader(jsonLoader);
 
-        // The registry writer is wired only when a connection string is present; otherwise --save
-        // is rejected by the runner with a usage error.
-        StrategyWriteDbContext? writeDb = null;
-        IStrategyStore? store = null;
-        var connectionString = Environment.GetEnvironmentVariable(ConnectionStringEnvVar);
-        if (connectionString is not null)
-        {
-            var options = new DbContextOptionsBuilder<StrategyWriteDbContext>()
-                .UseNpgsql(connectionString)
-                .Options;
-            writeDb = new StrategyWriteDbContext(options);
-            store = new StrategyStore(writeDb, TimeProvider.System);
-        }
+        // The registry writer is always wired: HTB_CONNECTION_STRING when set, or a local default
+        // otherwise, so --save works out of the box against a local PostgreSQL instance.
+        var connectionString =
+            Environment.GetEnvironmentVariable(ConnectionStringEnvVar)
+            ?? "Database=hawkeye;Host=localhost;Port=5432;Username=hawkeye;Password=hawkeye";
+        var options = new DbContextOptionsBuilder<StrategyWriteDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        await using var writeDb = new StrategyWriteDbContext(options);
+        IStrategyStore store = new StrategyStore(writeDb, TimeProvider.System);
 
-        try
-        {
-            var runner = new StrategyLoader(packageLoader, jsonLoader, Console.Out, Console.Error, store);
-            return await runner.RunAsync(args);
-        }
-        finally
-        {
-            if (writeDb is not null)
-            {
-                await writeDb.DisposeAsync();
-            }
-        }
+        var runner = new StrategyLoader(
+            packageLoader,
+            jsonLoader,
+            Console.Out,
+            Console.Error,
+            store
+        );
+        return await runner.RunAsync(args);
     }
 }
