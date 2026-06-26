@@ -59,3 +59,6 @@ nunit-*.xml
 
 # Local TimescaleDB data (bind mount)
 pgdata/
+
+# Local strategies for testing
+strategies/
