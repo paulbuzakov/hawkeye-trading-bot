@@ -69,6 +69,24 @@ public sealed class StrategyLoader : IStrategyLoader
         return new StrategyDefinition(manifest, strategyRules, parameters, isRunnable);
     }
 
+    /// <inheritdoc />
+    public StrategyValidationResult Validate(string manifestJson, string rulesJson)
+    {
+        ArgumentNullException.ThrowIfNull(manifestJson);
+        ArgumentNullException.ThrowIfNull(rulesJson);
+
+        try
+        {
+            // "Valid" means exactly "Load would succeed", so we run the one real validation path and
+            // translate its typed failure into a verdict — never a second, divergent rule set.
+            return StrategyValidationResult.Valid(Load(manifestJson, rulesJson));
+        }
+        catch (StrategyConfigException ex)
+        {
+            return StrategyValidationResult.Invalid(ex.Message);
+        }
+    }
+
     private static T Deserialize<T>(string json, string what)
     {
         T? dto;

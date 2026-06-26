@@ -27,7 +27,10 @@ public sealed class MigrationDownTests : IAsyncLifetime
         var options = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
             .UseNpgsql(
                 _container.GetConnectionString(),
-                npgsql => npgsql.MigrationsAssembly("HTB.MarketData.Migrations")
+                npgsql =>
+                    npgsql
+                        .MigrationsAssembly("HTB.MarketData.Migrations")
+                        .MigrationsHistoryTable("__EFMigrationsHistory", "marketdata")
             )
             .Options;
         await using var context = new MarketDataReadonlyDbContext(options);
@@ -51,6 +54,7 @@ public sealed class MigrationDownTests : IAsyncLifetime
                 SELECT count(*)::int AS "Value"
                 FROM information_schema.tables
                 WHERE table_schema = 'marketdata'
+                  AND table_name <> '__EFMigrationsHistory'
                 """
             )
             .SingleAsync();

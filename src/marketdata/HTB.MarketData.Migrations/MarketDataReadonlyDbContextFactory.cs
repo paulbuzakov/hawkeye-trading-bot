@@ -14,6 +14,11 @@ public sealed class MarketDataReadonlyDbContextFactory
     internal const string ConnectionStringEnvVar = "HTB_CONNECTION_STRING";
     internal const string MigrationsAssembly = "HTB.MarketData.Migrations";
 
+    // Keep the EF history table inside the schema it tracks rather than the default
+    // "public", so each store's migration bookkeeping lives next to its own tables.
+    internal const string HistoryTableName = "__EFMigrationsHistory";
+    internal const string HistoryTableSchema = "marketdata";
+
     // Used at build time (e.g. `dotnet ef migrations bundle`) when no env var is
     // present. EF only needs a syntactically valid string to construct the model;
     // it never opens a connection. The real connection is supplied at runtime via
@@ -27,7 +32,13 @@ public sealed class MarketDataReadonlyDbContextFactory
             Environment.GetEnvironmentVariable(ConnectionStringEnvVar) ?? DefaultConnectionString;
 
         var options = new DbContextOptionsBuilder<MarketDataReadonlyDbContext>()
-            .UseNpgsql(connectionString, npgsql => npgsql.MigrationsAssembly(MigrationsAssembly))
+            .UseNpgsql(
+                connectionString,
+                npgsql =>
+                    npgsql
+                        .MigrationsAssembly(MigrationsAssembly)
+                        .MigrationsHistoryTable(HistoryTableName, HistoryTableSchema)
+            )
             .Options;
 
         return new MarketDataReadonlyDbContext(options);
