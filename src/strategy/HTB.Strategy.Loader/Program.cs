@@ -31,23 +31,16 @@ internal static class Program
         var options = new DbContextOptionsBuilder<StrategyWriteDbContext>()
             .UseNpgsql(connectionString)
             .Options;
-        var writeDb = new StrategyWriteDbContext(options);
+        await using var writeDb = new StrategyWriteDbContext(options);
         IStrategyStore store = new StrategyStore(writeDb, TimeProvider.System);
 
-        try
-        {
-            var runner = new StrategyLoader(
-                packageLoader,
-                jsonLoader,
-                Console.Out,
-                Console.Error,
-                store
-            );
-            return await runner.RunAsync(args);
-        }
-        finally
-        {
-            await writeDb.DisposeAsync();
-        }
+        var runner = new StrategyLoader(
+            packageLoader,
+            jsonLoader,
+            Console.Out,
+            Console.Error,
+            store
+        );
+        return await runner.RunAsync(args);
     }
 }
