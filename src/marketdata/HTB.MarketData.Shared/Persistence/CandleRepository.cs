@@ -13,7 +13,7 @@ public sealed class CandleRepository(MarketDataReadonlyDbContext db) : ICandleRe
     private readonly MarketDataReadonlyDbContext _db = db;
 
     public async Task<IReadOnlyList<Candle>> GetRangeAsync(
-        int symbolId,
+        SymbolCode symbolCode,
         Timeframe interval,
         DateTimeOffset from,
         DateTimeOffset to,
@@ -22,20 +22,20 @@ public sealed class CandleRepository(MarketDataReadonlyDbContext db) : ICandleRe
     {
         return await _db
             .Candles.Where(c =>
-                c.SymbolId == symbolId && c.Interval == interval && c.OpenTime >= from && c.OpenTime <= to
+                c.Symbol == symbolCode && c.Interval == interval && c.OpenTime >= from && c.OpenTime <= to
             )
             .OrderBy(c => c.OpenTime)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<Candle?> GetLatestAsync(
-        int symbolId,
+        SymbolCode symbolCode,
         Timeframe interval,
         CancellationToken cancellationToken = default
     )
     {
         return await _db
-            .Candles.Where(c => c.SymbolId == symbolId && c.Interval == interval)
+            .Candles.Where(c => c.Symbol == symbolCode && c.Interval == interval)
             .OrderByDescending(c => c.OpenTime)
             .FirstOrDefaultAsync(cancellationToken);
     }

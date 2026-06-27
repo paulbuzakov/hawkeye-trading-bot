@@ -22,8 +22,8 @@ public sealed class MarketDataLoader(
     Action<string>? log = null
 )
 {
-    private const string ExchangeCode = "binance";
-    private const string ExchangeName = "Binance";
+    private const string _ExchangeCode = "binance";
+    private const string _ExchangeName = "Binance";
 
     private readonly IBinanceMarketDataClient _client = client;
     private readonly IInstrumentRepository _instruments = instruments;
@@ -42,25 +42,33 @@ public sealed class MarketDataLoader(
     {
         ArgumentNullException.ThrowIfNull(specs);
 
-        var exchange = await _instruments.GetOrCreateExchangeAsync(ExchangeCode, ExchangeName, cancellationToken);
+        var exchange = await _instruments.GetOrCreateExchangeAsync(
+            new(_ExchangeCode),
+            _ExchangeName,
+            cancellationToken
+        );
 
         var total = 0;
         foreach (var spec in specs)
         {
-            total += await LoadSymbolAsync(exchange.Id, spec, cancellationToken);
+            total += await LoadSymbolAsync(exchange.Code, spec, cancellationToken);
         }
 
         return total;
     }
 
-    private async Task<int> LoadSymbolAsync(int exchangeId, SymbolLoadSpec spec, CancellationToken cancellationToken)
+    private async Task<int> LoadSymbolAsync(
+        ExchangeCode exchangeCode,
+        SymbolLoadSpec spec,
+        CancellationToken cancellationToken
+    )
     {
         var info = await _client.GetSymbolInfoAsync(spec.Ticker, cancellationToken);
         var symbol = await _instruments.GetOrCreateSymbolAsync(
-            exchangeId,
+            exchangeCode,
+            new(info.Symbol),
             info.BaseAsset,
             info.QuoteAsset,
-            info.Symbol,
             cancellationToken
         );
 
@@ -71,7 +79,7 @@ public sealed class MarketDataLoader(
             // Resume from the last stored bar so restarting the loader only fetches new candles
             // instead of re-downloading the whole range. Re-reading that one bar is harmless —
             // the upsert is idempotent. With no prior data we backfill from the requested start.
-            var latest = await _candleReader.GetLatestAsync(symbol.Id, timeframe, cancellationToken);
+            var latest = await _candleReader.GetLatestAsync(symbol.Code, timeframe, cancellationToken);
             var from = latest?.OpenTime ?? spec.From;
 
             // Flush every page (up to ~1000 bars) as it arrives so a long backfill is persisted
@@ -86,7 +94,7 @@ public sealed class MarketDataLoader(
                 // that are final, so we never store a candle that can still change.
                 var mapped = page
                     .Klines.Where(k => k.CloseTime < now)
-                    .Select(k => ToCandle(exchangeId, symbol.Id, timeframe, k))
+                    .Select(k => ToCandle(exchangeCode, symbol.Code, timeframe, k))
                     .ToList();
 
                 loaded += await _candleWriter.UpsertAsync(mapped, cancellationToken);
@@ -120,11 +128,16 @@ public sealed class MarketDataLoader(
         return Math.Round((decimal)Math.Clamp((at - from).Ticks * 100.00 / span, 0, 100), 3);
     }
 
-    private static Candle ToCandle(int exchangeId, int symbolId, Timeframe interval, BinanceKline kline) =>
+    private static Candle ToCandle(
+        ExchangeCode exchangeCode,
+        SymbolCode symbolCode,
+        Timeframe interval,
+        BinanceKline kline
+    ) =>
         new()
         {
-            ExchangeId = exchangeId,
-            SymbolId = symbolId,
+            Exchange = exchangeCode,
+            Symbol = symbolCode,
             Interval = interval,
             OpenTime = kline.OpenTime,
             Open = kline.Open,

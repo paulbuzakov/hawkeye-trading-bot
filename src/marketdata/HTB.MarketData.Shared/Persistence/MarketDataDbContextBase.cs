@@ -17,6 +17,12 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
 
     public DbSet<Candle> Candles => Set<Candle>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<ExchangeCode>().HaveConversion<ExchangeCodeConverter>();
+        configurationBuilder.Properties<SymbolCode>().HaveConversion<SymbolCodeConverter>();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("marketdata");
@@ -24,9 +30,8 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
         modelBuilder.Entity<Exchange>(entity =>
         {
             entity.ToTable("exchanges", "marketdata");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Code).HasColumnName("code").IsRequired();
+            entity.HasKey(e => e.Code);
+            entity.Property(e => e.Code).HasColumnName("code");
             entity.Property(e => e.Name).HasColumnName("name").IsRequired();
             entity.HasIndex(e => e.Code).IsUnique();
         });
@@ -34,14 +39,13 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
         modelBuilder.Entity<Symbol>(entity =>
         {
             entity.ToTable("symbols", "marketdata");
-            entity.HasKey(s => s.Id);
-            entity.Property(s => s.Id).HasColumnName("id");
-            entity.Property(s => s.ExchangeId).HasColumnName("exchange_id");
+            entity.HasKey(s => s.Code);
+            entity.Property(s => s.Code).HasColumnName("code");
+            entity.Property(s => s.Exchange).HasColumnName("exchange_code");
             entity.Property(s => s.BaseAsset).HasColumnName("base_asset").IsRequired();
             entity.Property(s => s.QuoteAsset).HasColumnName("quote_asset").IsRequired();
-            entity.Property(s => s.ExchangeSymbol).HasColumnName("exchange_symbol").IsRequired();
-            entity.HasIndex(s => new { s.ExchangeId, s.ExchangeSymbol }).IsUnique();
-            entity.HasOne<Exchange>().WithMany().HasForeignKey(s => s.ExchangeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(s => new { s.Exchange, s.Code }).IsUnique();
+            entity.HasOne<Exchange>().WithMany().HasForeignKey(s => s.Exchange).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Candle>(entity =>
@@ -49,13 +53,13 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
             entity.ToTable("candles", "marketdata");
             entity.HasKey(c => new
             {
-                c.ExchangeId,
-                c.SymbolId,
+                c.Exchange,
+                c.Symbol,
                 c.Interval,
                 c.OpenTime,
             });
-            entity.Property(c => c.ExchangeId).HasColumnName("exchange_id");
-            entity.Property(c => c.SymbolId).HasColumnName("symbol_id");
+            entity.Property(c => c.Exchange).HasColumnName("exchange_code");
+            entity.Property(c => c.Symbol).HasColumnName("symbol_code");
             entity.Property(c => c.Interval).HasColumnName("interval").HasConversion<short>();
             entity.Property(c => c.OpenTime).HasColumnName("open_time");
             entity.Property(c => c.Open).HasColumnName("open");
@@ -70,12 +74,13 @@ public abstract class MarketDataDbContextBase(DbContextOptions options) : DbCont
             entity
                 .HasIndex(c => new
                 {
-                    c.SymbolId,
+                    c.Symbol,
                     c.Interval,
                     c.OpenTime,
                 })
                 .HasDatabaseName("ix_candles_symbol_interval_time");
-            entity.HasOne<Symbol>().WithMany().HasForeignKey(c => c.SymbolId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Symbol>().WithMany().HasForeignKey(c => c.Symbol).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne<Exchange>().WithMany().HasForeignKey(c => c.Exchange).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

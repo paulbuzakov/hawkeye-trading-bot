@@ -1,15 +1,10 @@
 namespace HTB.MarketData.Shared.Domain;
 
-/// <summary>
-/// An OHLCV candle (kline) for a symbol/interval. The natural key is
-/// (<see cref="ExchangeId"/>, <see cref="SymbolId"/>, <see cref="Interval"/>,
-/// <see cref="OpenTime"/>). Prices and sizes are <see cref="decimal"/>; time is UTC.
-/// </summary>
 public sealed class Candle
 {
-    public int ExchangeId { get; set; }
+    public ExchangeCode Exchange { get; set; }
 
-    public int SymbolId { get; set; }
+    public SymbolCode Symbol { get; set; }
 
     public Timeframe Interval { get; set; }
 
