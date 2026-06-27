@@ -14,7 +14,7 @@ public interface ICandleRepository
     /// <paramref name="from"/>..<paramref name="to"/> range, ordered by open time ascending.
     /// </summary>
     Task<IReadOnlyList<Candle>> GetRangeAsync(
-        int symbolId,
+        SymbolCode symbolCode,
         Timeframe interval,
         DateTimeOffset from,
         DateTimeOffset to,
@@ -24,5 +24,9 @@ public interface ICandleRepository
     /// <summary>
     /// Returns the most recent candle for a symbol/interval, or <c>null</c> if none exist.
     /// </summary>
-    Task<Candle?> GetLatestAsync(int symbolId, Timeframe interval, CancellationToken cancellationToken = default);
+    Task<Candle?> GetLatestAsync(
+        SymbolCode symbolCode,
+        Timeframe interval,
+        CancellationToken cancellationToken = default
+    );
 }

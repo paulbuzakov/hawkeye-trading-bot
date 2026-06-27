@@ -13,13 +13,11 @@ public sealed class InstrumentRepository(MarketDataWriteDbContext db) : IInstrum
     private readonly MarketDataWriteDbContext _db = db;
 
     public async Task<Exchange> GetOrCreateExchangeAsync(
-        string code,
+        ExchangeCode code,
         string name,
         CancellationToken cancellationToken = default
     )
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(code);
-
         var existing = await _db.Exchanges.FirstOrDefaultAsync(e => e.Code == code, cancellationToken);
         if (existing is not null)
         {
@@ -33,17 +31,15 @@ public sealed class InstrumentRepository(MarketDataWriteDbContext db) : IInstrum
     }
 
     public async Task<Symbol> GetOrCreateSymbolAsync(
-        int exchangeId,
+        ExchangeCode exchangeCode,
+        SymbolCode symbolCode,
         string baseAsset,
         string quoteAsset,
-        string exchangeSymbol,
         CancellationToken cancellationToken = default
     )
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(exchangeSymbol);
-
         var existing = await _db.Symbols.FirstOrDefaultAsync(
-            s => s.ExchangeId == exchangeId && s.ExchangeSymbol == exchangeSymbol,
+            s => s.Exchange == exchangeCode && s.Code == symbolCode,
             cancellationToken
         );
         if (existing is not null)
@@ -53,10 +49,10 @@ public sealed class InstrumentRepository(MarketDataWriteDbContext db) : IInstrum
 
         var symbol = new Symbol
         {
-            ExchangeId = exchangeId,
+            Exchange = exchangeCode,
             BaseAsset = baseAsset,
             QuoteAsset = quoteAsset,
-            ExchangeSymbol = exchangeSymbol,
+            Code = symbolCode,
         };
         _db.Symbols.Add(symbol);
         await _db.SaveChangesAsync(cancellationToken);

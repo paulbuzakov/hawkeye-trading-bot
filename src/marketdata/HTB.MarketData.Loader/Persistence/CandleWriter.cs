@@ -25,13 +25,13 @@ public sealed class CandleWriter(MarketDataWriteDbContext db) : ICandleWriter
             affected += await _db.Database.ExecuteSqlInterpolatedAsync(
                 $"""
                 INSERT INTO marketdata.candles
-                    (exchange_id, symbol_id, interval, open_time,
+                    (exchange_code, symbol_code, interval, open_time,
                      open, high, low, close, volume, quote_volume, trade_count, is_closed)
                 VALUES
-                    ({c.ExchangeId}, {c.SymbolId}, {(short)c.Interval}, {c.OpenTime},
+                    ({c.Exchange.Value}, {c.Symbol.Value}, {(short)c.Interval}, {c.OpenTime},
                      {c.Open}, {c.High}, {c.Low}, {c.Close}, {c.Volume}, {c.QuoteVolume},
                      {c.TradeCount}, {c.IsClosed})
-                ON CONFLICT (exchange_id, symbol_id, interval, open_time)
+                ON CONFLICT (exchange_code, symbol_code, interval, open_time)
                 DO UPDATE SET
                     high = EXCLUDED.high,
                     low = EXCLUDED.low,
