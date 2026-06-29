@@ -1,8 +1,14 @@
 <Solution>
-  <Folder Name="/src/" />
-  <Folder Name="/src/marketdata/">
-    <Project Path="src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.csproj" />
-    <Project Path="src/marketdata/HTB.MarketData.Migrations/HTB.MarketData.Migrations.csproj" />
-    <Project Path="src/marketdata/HTB.MarketData.Shared/HTB.MarketData.Shared.csproj" />
+  <Folder Name="/src/">
+    <Folder Name="/src/marketdata/">
+      <Project Path="src/marketdata/HTB.MarketData.Loader/HTB.MarketData.Loader.csproj" />
+      <Project Path="src/marketdata/HTB.MarketData.Migrations/HTB.MarketData.Migrations.csproj" />
+      <Project Path="src/marketdata/HTB.MarketData.Shared/HTB.MarketData.Shared.csproj" />
+    </Folder>
+    <Folder Name="/src/strategy/">
+      <Project Path="src/strategy/HTB.Strategy.Loader/HTB.Strategy.Loader.csproj" />
+      <Project Path="src/strategy/HTB.Strategy.Migrations/HTB.Strategy.Migrations.csproj" />
+      <Project Path="src/strategy/HTB.Strategy.Shared/HTB.Strategy.Shared.csproj" />
+    </Folder>
   </Folder>
 </Solution>
