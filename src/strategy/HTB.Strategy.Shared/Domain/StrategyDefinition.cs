@@ -1,4 +1,5 @@
 using HTB.MarketData.Shared.Domain;
+using HTB.Strategy.Shared.Persistence;
 
 namespace HTB.Strategy.Shared.Domain;
 
@@ -26,4 +27,10 @@ public sealed class StrategyDefinition
 
     /// <summary>Bars of history the strategy needs before its signals are valid.</summary>
     public int WarmupBars { get; set; }
+
+    /// <summary>
+    /// The rule set (<c>rules.json</c>) for this version; the dependent of the 1:1 shared-primary-key
+    /// relationship. Null until a rule set is loaded for the version.
+    /// </summary>
+    public StrategyRuleSetRow? RuleSet { get; set; }
 }
