@@ -7,20 +7,70 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace HTB.Strategy.Migrations.Migrations;
-
-[DbContext(typeof(StrategyReadonlyDbContext))]
-partial class StrategyReadonlyDbContextModelSnapshot : ModelSnapshot
+namespace HTB.Strategy.Migrations.Migrations
 {
-    protected override void BuildModel(ModelBuilder modelBuilder)
+    [DbContext(typeof(StrategyReadonlyDbContext))]
+    partial class StrategyReadonlyDbContextModelSnapshot : ModelSnapshot
     {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
 #pragma warning disable 612, 618
-        modelBuilder
-            .HasDefaultSchema("strategy")
-            .HasAnnotation("ProductVersion", "10.0.4")
-            .HasAnnotation("Relational:MaxIdentifierLength", 63);
+            modelBuilder
+                .HasDefaultSchema("strategy")
+                .HasAnnotation("ProductVersion", "10.0.4")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-        NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("HTB.Strategy.Shared.Domain.StrategyDefinition", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string[]>("Exchanges")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("exchanges");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string[]>("Symbols")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("symbols");
+
+                    b.Property<string[]>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("tags");
+
+                    b.Property<short[]>("Timeframes")
+                        .IsRequired()
+                        .HasColumnType("smallint[]")
+                        .HasColumnName("timeframes");
+
+                    b.Property<int>("WarmupBars")
+                        .HasColumnType("integer")
+                        .HasColumnName("warmup_bars");
+
+                    b.HasKey("Id", "Version");
+
+                    b.ToTable("strategy_definitions", "strategy");
+                });
 #pragma warning restore 612, 618
+        }
     }
 }
