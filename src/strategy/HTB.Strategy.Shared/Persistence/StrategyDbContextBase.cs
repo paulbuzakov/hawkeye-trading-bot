@@ -32,13 +32,23 @@ public abstract class StrategyDbContextBase(DbContextOptions options) : DbContex
         modelBuilder.HasDefaultSchema(Schema);
 
         // The rule set is a deep, union-typed aggregate, so it is stored as a single jsonb document
-        // keyed by its version id rather than shredded into relational tables.
+        // rather than shredded into relational tables. Its primary key (id, version) is also its
+        // foreign key to the owning definition — the EF Core 1:1 shared-primary-key pattern — so the
+        // database enforces "no rule set without a definition" and cascades on delete.
         modelBuilder.Entity<StrategyRuleSetRow>(entity =>
         {
             entity.ToTable("strategy_rule_sets", Schema);
-            entity.HasKey(r => r.VersionId);
-            entity.Property(r => r.VersionId).HasColumnName("version_id");
+            entity.HasKey(r => new { r.Id, r.Version });
+            entity.Property(r => r.Id).HasColumnName("id");
+            entity.Property(r => r.Version).HasColumnName("version");
+            entity.Ignore(r => r.VersionId);
             entity.Property(r => r.Rules).HasColumnName("rules").HasColumnType("jsonb").IsRequired();
+
+            entity
+                .HasOne(r => r.Definition)
+                .WithOne(d => d.RuleSet)
+                .HasForeignKey<StrategyRuleSetRow>(r => new { r.Id, r.Version })
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<StrategyDefinition>(entity =>
