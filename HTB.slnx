@@ -11,4 +11,9 @@
       <Project Path="src/strategy/HTB.Strategy.Shared/HTB.Strategy.Shared.csproj" />
     </Folder>
   </Folder>
+  <Folder Name="/tests/">
+    <Folder Name="/tests/strategy/">
+      <Project Path="tests/strategy/HTB.Strategy.Shared.Tests/HTB.Strategy.Shared.Tests.csproj" />
+    </Folder>
+  </Folder>
 </Solution>
