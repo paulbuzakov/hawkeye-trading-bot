@@ -7,13 +7,13 @@ namespace HTB.Strategy.Shared.Domain;
 /// </summary>
 public sealed record Condition
 {
-    public Condition(Operand left, ComparisonOperator op, Operand right)
+    public Condition(Operand left, ComparisonOperator @operator, Operand right)
     {
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
         Left = left;
-        Operator = op;
+        Operator = @operator;
         Right = right;
     }
 

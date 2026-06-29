@@ -18,15 +18,28 @@ public abstract class StrategyDbContextBase(DbContextOptions options) : DbContex
 
     public DbSet<StrategyDefinition> StrategyDefinitions => Set<StrategyDefinition>();
 
+    public DbSet<StrategyRuleSetRow> StrategyRuleSets => Set<StrategyRuleSetRow>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Properties<StrategyId>().HaveConversion<StrategyIdConverter>();
         configurationBuilder.Properties<StrategyVersion>().HaveConversion<StrategyVersionConverter>();
+        configurationBuilder.Properties<StrategyVersionId>().HaveConversion<StrategyVersionIdConverter>();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
+
+        // The rule set is a deep, union-typed aggregate, so it is stored as a single jsonb document
+        // keyed by its version id rather than shredded into relational tables.
+        modelBuilder.Entity<StrategyRuleSetRow>(entity =>
+        {
+            entity.ToTable("strategy_rule_sets", Schema);
+            entity.HasKey(r => r.VersionId);
+            entity.Property(r => r.VersionId).HasColumnName("version_id");
+            entity.Property(r => r.Rules).HasColumnName("rules").HasColumnType("jsonb").IsRequired();
+        });
 
         modelBuilder.Entity<StrategyDefinition>(entity =>
         {
