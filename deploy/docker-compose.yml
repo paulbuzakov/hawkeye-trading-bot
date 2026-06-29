@@ -1,4 +1,5 @@
-# HTB market-data stack: TimescaleDB + one-shot migrations + the loader.
+# HTB stack: TimescaleDB + one-shot migrations + loaders for each module
+# (market-data and strategy).
 #
 # Usage (from the repo root):
 #   docker compose -f deploy/docker-compose.yml up --build
@@ -56,3 +57,17 @@ services:
       marketdata-migrations:
         condition: service_completed_successfully
     restart: on-failure
+
+  strategy-migrations:
+    container_name: strategy-migrations
+    build:
+      context: ..
+      dockerfile: deploy/strategy/migrations.Dockerfile
+    image: hawkeye-trading-bot/strategy-migrations
+    environment:
+      HTB_CONNECTION_STRING: "Host=timescale-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
+    depends_on:
+      timescale-db:
+        condition: service_healthy
+    # One-shot: applies pending migrations and exits.
+    restart: "no"
