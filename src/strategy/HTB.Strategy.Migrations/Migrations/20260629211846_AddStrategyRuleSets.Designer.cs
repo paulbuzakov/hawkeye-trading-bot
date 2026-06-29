@@ -2,6 +2,7 @@
 using HTB.Strategy.Shared.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HTB.Strategy.Migrations.Migrations
 {
     [DbContext(typeof(StrategyReadonlyDbContext))]
-    partial class StrategyReadonlyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260629211846_AddStrategyRuleSets")]
+    partial class AddStrategyRuleSets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
