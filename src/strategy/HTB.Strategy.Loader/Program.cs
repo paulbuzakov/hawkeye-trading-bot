@@ -6,10 +6,11 @@ using Microsoft.EntityFrameworkCore;
 namespace HTB.Strategy.Loader;
 
 /// <summary>
-/// Console entry point for the strategy runner. Reads a strategy bundle's <c>meta.json</c> via
-/// <c>--meta &lt;path&gt;</c>, parses it into a <c>StrategyDefinition</c>, and persists it to the
-/// strategy store. Pure composition (arg wiring + PostgreSQL wiring + console output), so it is
-/// excluded from coverage; the testable logic lives in the parsers and the repository.
+/// Console entry point for the strategy loader. Reads a strategy bundle's <c>meta.json</c> via
+/// <c>--meta &lt;path&gt;</c> and its <c>rules.json</c> via <c>--rules &lt;path&gt;</c>, parses
+/// them into a <c>StrategyDefinition</c> and a <c>StrategyRuleSet</c>, and persists both to the
+/// strategy store in one transaction. Pure composition (arg wiring + PostgreSQL wiring + console
+/// output), so it is excluded from coverage; the testable logic lives in the parsers and the repository.
 /// </summary>
 [ExcludeFromCodeCoverage]
 internal static class Program
@@ -24,6 +25,7 @@ internal static class Program
         {
             var parsed = StrategyLoaderArgs.Parse(args);
             var definition = await StrategyMetaParser.ParseFileAsync(parsed.MetaPath);
+            var ruleSet = await StrategyRulesParser.ParseFileAsync(parsed.RulesPath, definition.VersionId);
 
             var connectionString =
                 Environment.GetEnvironmentVariable(ConnectionStringEnvVar) ?? DefaultConnectionString;
@@ -32,9 +34,12 @@ internal static class Program
 
             await using var db = new StrategyWriteDbContext(options);
             var repository = new StrategyDefinitionRepository(db);
-            var outcome = await repository.SaveAsync(definition);
+            var outcome = await repository.SaveAsync(definition, ruleSet);
 
-            Console.WriteLine($"{outcome} strategy {definition.VersionId} — {definition.Name} ({parsed.MetaPath}).");
+            Console.WriteLine(
+                $"{outcome} strategy {definition.VersionId} — {definition.Name} "
+                    + $"({parsed.MetaPath} + {parsed.RulesPath})."
+            );
             return 0;
         }
         catch (Exception ex)
