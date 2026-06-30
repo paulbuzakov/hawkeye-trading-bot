@@ -35,8 +35,15 @@ public sealed class MarketDataLoader(
     /// <summary>
     /// Loads candles for every spec and returns the total number of candle rows written.
     /// </summary>
+    /// <param name="verify">
+    /// When <c>true</c>, ignores the stored resume point and re-scans each timeframe from its
+    /// configured <see cref="SymbolLoadSpec.From"/>, so the idempotent upsert corrects any drifted
+    /// candle and fills any gap. When <c>false</c> (the default) only new candles past the last
+    /// stored bar are fetched.
+    /// </param>
     public async Task<int> LoadAsync(
         IReadOnlyCollection<SymbolLoadSpec> specs,
+        bool verify = false,
         CancellationToken cancellationToken = default
     )
     {
@@ -51,7 +58,7 @@ public sealed class MarketDataLoader(
         var total = 0;
         foreach (var spec in specs)
         {
-            total += await LoadSymbolAsync(exchange.Code, spec, cancellationToken);
+            total += await LoadSymbolAsync(exchange.Code, spec, verify, cancellationToken);
         }
 
         return total;
@@ -60,6 +67,7 @@ public sealed class MarketDataLoader(
     private async Task<int> LoadSymbolAsync(
         ExchangeCode exchangeCode,
         SymbolLoadSpec spec,
+        bool verify,
         CancellationToken cancellationToken
     )
     {
@@ -79,8 +87,10 @@ public sealed class MarketDataLoader(
             // Resume from the last stored bar so restarting the loader only fetches new candles
             // instead of re-downloading the whole range. Re-reading that one bar is harmless —
             // the upsert is idempotent. With no prior data we backfill from the requested start.
+            // In verify mode we deliberately skip the resume point and re-scan from the configured
+            // start, so the idempotent upsert corrects any drifted candle and fills any gap.
             var latest = await _candleReader.GetLatestAsync(symbol.Code, timeframe, cancellationToken);
-            var from = latest?.OpenTime ?? spec.From;
+            var from = verify ? spec.From : latest?.OpenTime ?? spec.From;
 
             // Flush every page (up to ~1000 bars) as it arrives so a long backfill is persisted
             // incrementally and progress is visible, instead of buffering the whole range.

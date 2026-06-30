@@ -51,6 +51,9 @@ services:
     environment:
       HTB_CONNECTION_STRING: "Host=timescale-db;Port=5432;Database=${POSTGRES_DB:-hawkeye};Username=${POSTGRES_USER:-hawkeye};Password=${POSTGRES_PASSWORD:-hawkeye}"
       HTB_SYMBOLS_FILE: "/app/symbols.json"
+      # Set HTB_VERIFY=true in deploy/.env to re-scan every candle from its configured start and
+      # upsert mismatches (corrects drifted bars, fills gaps) instead of resuming from the last bar.
+      HTB_VERIFY: "${HTB_VERIFY:-false}"
     depends_on:
       timescale-db:
         condition: service_healthy
