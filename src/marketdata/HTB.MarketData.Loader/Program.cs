@@ -18,6 +18,7 @@ internal static class Program
 {
     private const string SymbolsFileEnvVar = "HTB_SYMBOLS_FILE";
     private const string ConnectionStringEnvVar = "HTB_CONNECTION_STRING";
+    private const string VerifyEnvVar = "HTB_VERIFY";
     private const string BinanceBaseAddress = "https://api.binance.com";
 
     private static async Task<int> Main(string[] args)
@@ -35,6 +36,11 @@ internal static class Program
             ?? throw new InvalidOperationException(
                 $"Environment variable {ConnectionStringEnvVar} must be set to a valid PostgreSQL connection string."
             );
+
+        // Opt-in reconciliation pass: re-scan every candle from its configured start and upsert,
+        // correcting drifted bars and filling gaps. Anything other than "true"/"1" leaves the
+        // loader in its default resume-only mode so a stray value never triggers a full re-scan.
+        var verify = IsTruthy(Environment.GetEnvironmentVariable(VerifyEnvVar));
 
         try
         {
@@ -64,8 +70,9 @@ internal static class Program
                 Console.WriteLine
             );
 
-            var written = await loader.LoadAsync(specs);
-            Console.WriteLine($"Done. {written} candles written from {symbolsFile}.");
+            var written = await loader.LoadAsync(specs, verify);
+            var mode = verify ? "verified" : "written";
+            Console.WriteLine($"Done. {written} candles {mode} from {symbolsFile}.");
             return 0;
         }
         catch (Exception ex)
@@ -74,4 +81,7 @@ internal static class Program
             return 1;
         }
     }
+
+    private static bool IsTruthy(string? value) =>
+        string.Equals(value?.Trim(), "true", StringComparison.OrdinalIgnoreCase) || value?.Trim() == "1";
 }
